@@ -3,14 +3,12 @@ import "./global.css"
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
 
 
 import Nav from "./components/Nav";
-import AddSets from "./components/AddSets"
-import BasicCard from "./components/BasicCard"
+import Header from "./components/Header"
+import SetCalculator from "./components/SetCalculator";
+import RelationsCalculator from "./components/RelationsCalculator";
 class Conjunto{
   constructor(set){
     this.arrSet = set;
@@ -38,69 +36,44 @@ class Conjunto{
     const difference = this.arrSet.filter((element)=>{
       return !tempSetB.has(element);
     })
-
+    
     return difference.sort();
+  }
+  getCross(arrB){
+    const pairs = [];
+    
+    for(let a of this.arrSet){
+      for(let b of arrB){
+        pairs.push(`(${a},${b})`);
+      }
+    }
+
+    return pairs;
   }
 
 }
 
 function App() {
   const [rawSets, setRawSets] = useState({setA: [], setB:[]});
-
   const updateSets = (a,b) => {
       setRawSets({setA: a, setB: b});
   }
 
-  const parseKatexString= (arrSet) => {
+    const globalSets = {setA: new Conjunto(rawSets.setA), setB: new Conjunto(rawSets.setB)}
 
-    return (arrSet.length)?String.raw`\{ ${arrSet.join(',')} \}`: String.raw`\varnothing`;
-  }
-  const setA = new Conjunto(rawSets.setA);
-  const setB = new Conjunto(rawSets.setB); 
+    console.log("globalSets")
 
-  console.log(setA);
-  console.log(setB);
-
-  const katexSetA = parseKatexString(setA.arrSet);
-  const katexSetB = parseKatexString(setB.arrSet);
-
-  const katexUnion = parseKatexString(setA.getUnion(setB.arrSet));
-  const katexIntersection = parseKatexString(setA.getIntersection(setB.arrSet));
-  const katexDifference = parseKatexString(setA.getDifference(setB.arrSet));
-
-
-  console.log(katexUnion);
-  const setUnion = String.raw`\{ 2,3,4,5,7\}`;
-  const setDiff = String.raw`\{ 2,3,4,5,7\}`;
-  const setInt =  String.raw`\{ 2,3,4,5,7\}`;
+  
   return (
     <>
-    
+      
       <Nav />
-      <AddSets updateSetsHandler ={updateSets}></AddSets>
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container justifyContent="center" spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <BlockMath>{`A =`+katexSetA}</BlockMath>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <BlockMath>{`B =`+katexSetB}</BlockMath>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <BasicCard title="Union" subtitle={String.raw`A\cup B`} content={katexUnion}></BasicCard>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <BasicCard title="Interseccion" subtitle ={String.raw`A\cap B`}content={katexIntersection}></BasicCard>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <BasicCard title= "Diferencia" subtitle ={String.raw`A - B`} content={katexDifference}></BasicCard>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
+      <Header size="h3" title = "Calculadora de conjuntos" content = "Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones"></Header>
+      <SetCalculator updateSets= {updateSets} sets = {globalSets} />
+      <Header size="h4"title="Relaciones"content="Si quieres calcular relaciones entre el conjunto A y B. Ingresa uno por uno cada elemento de la relación en la siguiente sección. " />
+      <RelationsCalculator sets={globalSets}/>
     </>
-  );
+  )
 }
 
 export default App;
