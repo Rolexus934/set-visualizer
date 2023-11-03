@@ -2,18 +2,21 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import BasicCard from "./BasicCard"
 import { useState } from "react";
 
-function AddRelation({ updateRelationHandler, deleteRelationHandler,setA, setB }) {
+
+function AddRelation({ inputStatus, updateRelationHandler, deleteRelationHandler, processRelationHandler, setA, setB, relation }) {
   const [value, setValue] = useState("");
 
-  const handleUpdate  = (e) => {
+  const handleUpdate = (e) => {
     setValue(e.target.value);
   };
-
+  const handleProcess = (e) => {
+    processRelationHandler();
+  }
 
   const handleSubmit = (e) => {
-    console.log(setA)
     e.preventDefault();
 
     let [valueA, valueB] = value.split(",");
@@ -24,10 +27,10 @@ function AddRelation({ updateRelationHandler, deleteRelationHandler,setA, setB }
     //validacion
     const validation = relationValidator(valueA, valueB);
     if (validation.state) {
-        updateRelationHandler(valueA, valueB);
-    } 
+      updateRelationHandler(valueA, valueB);
+    }
     else {
-        alert(validation.details);
+      alert(validation.details);
     }
   };
 
@@ -39,6 +42,8 @@ function AddRelation({ updateRelationHandler, deleteRelationHandler,setA, setB }
   const relationValidator = (valueA, valueB) => {
 
     const validation = { state: true, details: "lol" };
+
+
     if (setA.set.has(valueA) && setB.set.has(valueB)) {
       validation.details = "Succesfull";
     } else {
@@ -48,7 +53,11 @@ function AddRelation({ updateRelationHandler, deleteRelationHandler,setA, setB }
         ? (validation.details = `El elemento ${valueA} no se encuentra contenido en A`)
         : (validation.details = `El elemento ${valueB} no se encuentra contenido en B`);
     }
+    if (relation.set.has([valueA, valueB].toString())) {
+      validation.state = false;
+      validation.details = `La relacion ya contiene al par ordenado (${valueA}, ${valueB})`;
 
+    }
     return validation;
   };
   return (
@@ -63,19 +72,25 @@ function AddRelation({ updateRelationHandler, deleteRelationHandler,setA, setB }
             ></TextField>
           </Grid>
           <Grid item xs={3}>
-            <Button variant="contained" onClick={handleSubmit}>
-              Calcular
+            <Button variant="contained" onClick={handleSubmit} disabled={inputStatus}>
+              Añadir
             </Button>
           </Grid>
-          <Grid item xs={3}>
+
+          <Grid item xs={11} sx={{ margin: '2%' }}>
+            <BasicCard title="Relacion" subtitle={String.raw`a \mathrel{\mathcal{R}} b`} content={String.raw`\mathrel{\mathcal{R}} = ${relation.katexString}`}></BasicCard>
+          </Grid>
+          <Grid item xs={2}>
+            <Button variant="contained" onClick={handleProcess} disabled={inputStatus}>
+              Procesar
+            </Button>
+          </Grid>
+          <Grid item xs={2}>
             <Button variant="contained" color="error" onClick={handleDelete}>
               Eliminar
             </Button>
           </Grid>
         </Grid>
-      </Box>
-      <Box>
-        <Grid container justifyContent="center"></Grid>
       </Box>
     </>
   );

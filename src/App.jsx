@@ -10,9 +10,10 @@ import Header from "./components/Header"
 import SetCalculator from "./components/SetCalculator";
 import RelationsCalculator from "./components/RelationsCalculator";
 class Conjunto{
-  constructor(set){
+  constructor(set, label){
     this.arrSet = set;
     this.set = new Set;
+    this.label = label;
     set.forEach((element) =>{this.set.add(element)});
 
   }
@@ -59,14 +60,13 @@ function App() {
       setRawSets({setA: a, setB: b});
   }
 
-    const globalSets = {setA: new Conjunto(rawSets.setA), setB: new Conjunto(rawSets.setB)}
+    const globalSets = {setA: new Conjunto(rawSets.setA, "A"), setB: new Conjunto(rawSets.setB, "B")}
 
     console.log("globalSets")
 
   
   return (
     <>
-      
       <Nav />
       <Header size="h3" title = "Calculadora de conjuntos" content = "Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones"></Header>
       <SetCalculator updateSets= {updateSets} sets = {globalSets} />
