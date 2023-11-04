@@ -28,9 +28,9 @@ export default function BasicCard({title,subtitle, content}) {
           <InlineMath>{subtitle}</InlineMath>
         </Typography>
         <Typography variant="h6" component="div" sx={{whiteSpace:"normal"}}>
-        <Box component="div" sx={{overflow:"scroll" }}>
-        <InlineMath>{content}</InlineMath>
-</Box>
+        <Box component="div" sx={{overflow: 'auto'}} >
+          <p><InlineMath>{content}</InlineMath></p>
+          </Box>
           
         </Typography>
         

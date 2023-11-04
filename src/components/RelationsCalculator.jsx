@@ -11,11 +11,12 @@ import { InlineMath } from 'react-katex';
 class Relation {
     constructor(arr, setA, setB) {
         this.arr = arr;
+        this.setA = {...setA};
+        this.setB = {...setB};
         this.set = this.parseSet();
         this.string = this.parseString();
         this.katexString = this.parseKatexString();
-        this.setA = setA;
-        this.setB = setB;
+        
 
     }
 
@@ -80,27 +81,24 @@ class RelationUtil {
         const inputLabel = this.relation.setA.label;
         const outputLabel = this.relation.setB.label;
         let infoBlock = (<p>
-            Se cumple que para cada a, el f(a) producido en {outputLabel} es único. <br></br> Dicho de otra forma <InlineMath>{String.raw`\forall a \in ${inputLabel}, \exists ! b \in ${outputLabel} : f(a) = b`}</InlineMath>
+            Se cumple que para cada x, el f(x) producido en {outputLabel} es único. <br></br> Dicho de otra forma <InlineMath>{String.raw`\forall x \in ${inputLabel}, \exists ! y \in ${outputLabel} : f(x) = y`}</InlineMath>
         </p>);
 
         const response = { value: true, info: null }
 
 
-        console.log(adyl);
         for (const [key, value] of Object.entries(adyl)) {
             if (value.length > 1) {
                 response.value = false;
                 const arrStr = value.toString();
                 infoBlock = (<p>
-                    Existe un <InlineMath>{String.raw`a\in A`}</InlineMath> tal que <InlineMath>f(a)</InlineMath> no es unico. Si <InlineMath math={String.raw`a = ${key}, f(${key}) = \{ ${arrStr} \}`}> </InlineMath>. Como existen multiples valores para {`f(${key})`}, f(a) no es una funcion.
+                    Existe un <InlineMath>{String.raw`x\in A`}</InlineMath> tal que <InlineMath>f(x)</InlineMath> no es unico. Si <InlineMath math={String.raw`x = ${key}, f(${key}) = \{ ${arrStr} \}`}> </InlineMath>. Como existen multiples valores para {`f(${key})`}, R no es una funcion.
                 </p>);
                 break;
             }
         }
-        console.log('here');
 
         response.info = infoBlock;
-        console.log(infoBlock);
 
 
         return response;
@@ -110,7 +108,7 @@ class RelationUtil {
         const invAdyl = this.createInvAdyList();
         const inputLabel = this.relation.setA.label;
         let infoBlock = (<p>
-            Se cumple la relacion uno a uno en todos los elementos de A para f(a). <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall a, b \in ${inputLabel}, f(a) = f(b) \Longrightarrow a = b`}</InlineMath>
+            Se cumple la relacion uno a uno en <InlineMath math={String.raw`\forall x \in ${inputLabel}`}/> para f(x). <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall x, y \in ${inputLabel}, f(a) = f(b) \Longrightarrow a = b`}</InlineMath>
         </p>);
 
         const response = { value: true, info: null }
@@ -121,16 +119,14 @@ class RelationUtil {
                 response.value = false;
                 const arrStr = value.toString();
                 infoBlock = (<p>
-                    Existe un par distinto de <InlineMath>{String.raw`a,b\in A`}</InlineMath> tal que cuando <InlineMath math={String.raw`a \neq b \Longrightarrow f(a) = f(b)`}>  </InlineMath> <br></br> 
-                    Si <InlineMath math={String.raw`a = ${value[0]}, b =${value[1]} \Longrightarrow f(${value[0]}) = f(${value[1]})`}> </InlineMath>, aun cuando <InlineMath math={String.raw` a \neq b`}/>. Por lo tanto, no es una funcion inyectiva.
+                    Existe un par distinto de <InlineMath>{String.raw`x,y\in ${inputLabel}`}</InlineMath> tal que cuando <InlineMath math={String.raw`x \neq y \Longrightarrow f(x) = f(y)`}>  </InlineMath> <br></br> 
+                    Si <InlineMath math={String.raw`x = ${value[0]}, y =${value[1]} \Longrightarrow f(${value[0]}) = f(${value[1]})`}> </InlineMath>, aun cuando <InlineMath math={String.raw` x \neq y`}/>. Por lo tanto, R no es una funcion inyectiva.
                 </p>);
                 break;
             }
         }
-        console.log('here');
 
         response.info = infoBlock;
-        console.log(infoBlock);
 
 
         return response;
@@ -142,7 +138,7 @@ class RelationUtil {
         const inputLabel = this.relation.setA.label;
         const outputLabel = this.relation.setB.label;
         let infoBlock = (<p>
-            Todo elemento de B está asociado a un elemento de A <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall b \in ${outputLabel}, \exists a \in A : f(a) = b`}</InlineMath>
+            Todo elemento de B está asociado a un elemento de A <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall y \in ${outputLabel}, \exists x \in A : f(x) = y`}</InlineMath>
         </p>);
 
         const response = { value: true, info: null }
@@ -153,16 +149,14 @@ class RelationUtil {
                 response.value = false;
                 const arrStr = value.toString();
                 infoBlock = (<p> Existe un elemento b en {outputLabel} que no está asociado a ningun elemento de {inputLabel} <br/>
-                    Dicho de otra forma, <InlineMath math={String.raw`\exists b \in ${outputLabel}, \forall a \in ${inputLabel} : f(a) \neq b `}/> <br/>
-                    La defincion no se satiface para <InlineMath math={`b = ${key}`}></InlineMath>
+                    Dicho de otra forma, <InlineMath math={String.raw`\exists x \in ${outputLabel}, \forall y \in ${inputLabel} : f(x) \neq y `}/> <br/>
+                    La defincion no se satiface para <InlineMath math={`y = ${key}`}></InlineMath>
                     </p>);
                 break;
             }
         }
-        console.log('here');
 
         response.info = infoBlock;
-        console.log(infoBlock);
 
 
         return response;
@@ -176,9 +170,12 @@ function RelationsCalculator({ sets }) {
     const { setA, setB } = sets;
 
 
-    const [relation, setRelation] = useState(new Relation([], setA, setB));
+    const [relation, setRelation] = useState(new Relation([], {...setA}, {...setB}));
     const [processedRel, setProcessedRel] = useState(false);
+    console.log(setA);
+    console.log(setB);
     console.log(relation);
+
     const updateRelation = (valueA, valueB) => {
         setRelation(new Relation([...relation.arr, [valueA, valueB]], setA, setB));
     }
@@ -186,7 +183,14 @@ function RelationsCalculator({ sets }) {
         setRelation(new Relation([], setA, setB));
         setProcessedRel(false);
     }
-    const processRelation = () => {
+    const processRelation = (relType) => {
+        if(relType === 'aa'){
+            relation.setB = {...setA};
+          }
+          else if(relType === 'bb'){
+            relation.setA = {...setB};
+          }
+          
         setProcessedRel(true);
     }
 
@@ -194,8 +198,6 @@ function RelationsCalculator({ sets }) {
     if (processedRel) relUtil = new RelationUtil(relation);
 
 
-    console.log(relation);
-    console.log(relUtil);
 
 
 
@@ -205,7 +207,7 @@ function RelationsCalculator({ sets }) {
     return (
         <>
             <AddRelation
-                inputStatus={processedRel}
+                processedStatus={processedRel}
                 processRelationHandler={processRelation}
                 updateRelationHandler={updateRelation}
                 deleteRelationHandler={deleteRelation}
