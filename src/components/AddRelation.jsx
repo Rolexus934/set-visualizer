@@ -24,6 +24,12 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
   const handleUpdate = (e) => {
     setValue(e.target.value);
   };
+  const handleKeyDown = (e) => {
+    console.log(e);
+    if(e.keyCode == 13 && e.shiftKey == false){
+      handleSubmit(e);
+    }
+  }
 
   const handleRadioUpdate = (e) => {
     console.log(e.target.value);
@@ -114,6 +120,7 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
               label="(a, b)"
               variant="outlined"
               onChange={handleUpdate}
+              onKeyDown={handleKeyDown}
             ></TextField>
           </Grid>
           <Grid item xs={3}>
