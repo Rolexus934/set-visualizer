@@ -7,6 +7,7 @@ import AddRelation from './AddRelation';
 import FunctionDisplay from './FunctionDisplay'
 
 import { InlineMath } from 'react-katex';
+import { Fort } from '@mui/icons-material';
 
 class Relation {
     constructor(arr, setA, setB) {
@@ -16,6 +17,7 @@ class Relation {
         this.set = this.parseSet();
         this.string = this.parseString();
         this.katexString = this.parseKatexString();
+        this.binaryRel = false;
         
 
     }
@@ -40,11 +42,15 @@ class Relation {
 
 class RelationUtil {
     constructor(relation) {
-        this.relation = relation;
+        this.relation = {...relation};
+        this.setSize = this.relation.setA.arrSet.length;
         this.adyList = this.createAdylist();
         this.isFunction = this.isFunction();
         this.isInjective = this.isInjective();
         this.isSurjective = this.isSurjective();
+        this.mapA = this.mapElementToIndex(this.relation.setA.arrSet);
+        this.mapB = this.mapElementToIndex(this.relation.setB.arrSet);
+        this.matrix = this.createRelMatrix();
     }
     createAdylist() {
         //domain -> {image}
@@ -75,6 +81,42 @@ class RelationUtil {
         })
 
         return invAdyList;
+    }
+    mapElementToIndex(values){
+        console.log(values);
+        //maps every value on the set from 0 to n;
+        const map = {};
+        for(let x = 0; x < values.length; x++){
+            map[values[x]] = x;
+        }
+        return map;
+    }
+    createRelMatrix(){
+        if(!this.relation.binaryRel) return [];
+        //initialize
+        
+        const n = this.setSize;
+        console.log(n);
+        let matrix = [];
+        for(let x = 0 ; x< n ; x++){
+            const tempArr = [];
+            for(let y = 0 ; y < n ; y ++){
+                tempArr.push(0);
+            }
+            matrix.push(tempArr);
+        }
+        //creates a NxN matrix with values initialized on 0
+        const adyl = this.adyList;
+        const map = this.mapA;
+        console.log('lookatmymap');
+        console.log(map);
+        console.log(matrix);
+        for(const [key, value] of Object.entries(adyl)){
+            value.forEach((e) => {matrix[map[key]][map[e]] = 1});
+        }
+
+        return matrix;
+        
     }
     isFunction() {
         const adyl = this.adyList;
@@ -186,9 +228,11 @@ function RelationsCalculator({ sets }) {
     const processRelation = (relType) => {
         if(relType === 'aa'){
             relation.setB = {...setA};
+            relation.binaryRel = true;
           }
           else if(relType === 'bb'){
             relation.setA = {...setB};
+            relation.binaryRel = true;
           }
           
         setProcessedRel(true);
@@ -196,16 +240,20 @@ function RelationsCalculator({ sets }) {
 
     let relUtil = null;
     if (processedRel) relUtil = new RelationUtil(relation);
-
+    console.log(relUtil);
 
 
 
 
     const displayFunction = (<FunctionDisplay relData={relUtil} />)
-
+    //const displayRelProps = (<RelationDisplay relData={relUtil} />);
 
     return (
         <>
+            <InlineMath math={String.raw`\begin{pmatrix}
+1 & 2 & 3\\
+a & b & c
+\end{pmatrix}`}/>
             <AddRelation
                 processedStatus={processedRel}
                 processRelationHandler={processRelation}
