@@ -51,6 +51,8 @@ class RelationUtil {
         this.mapA = this.mapElementToIndex(this.relation.setA.arrSet);
         this.mapB = this.mapElementToIndex(this.relation.setB.arrSet);
         this.matrix = this.createRelMatrix();
+        this.katexMatrix = this.createKatexMatrix();
+        this.isReflexive = this.checkReflexive();
     }
     createAdylist() {
         //domain -> {image}
@@ -118,6 +120,17 @@ class RelationUtil {
         return matrix;
         
     }
+    createKatexMatrix(){
+        const matrix = this.matrix;
+        const temp = [];
+        matrix.forEach((row) =>{
+            temp.push(row.join(' & '));
+        })
+        const strMatrix = temp.join(String.raw`\\`);
+        return String.raw`\begin{pmatrix} ${strMatrix} \end{pmatrix}`
+
+
+    }
     isFunction() {
         const adyl = this.adyList;
         const inputLabel = this.relation.setA.label;
@@ -150,7 +163,7 @@ class RelationUtil {
         const invAdyl = this.createInvAdyList();
         const inputLabel = this.relation.setA.label;
         let infoBlock = (<p>
-            Se cumple la relacion uno a uno en <InlineMath math={String.raw`\forall x \in ${inputLabel}`}/> para f(x). <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall x, y \in ${inputLabel}, f(a) = f(b) \Longrightarrow a = b`}</InlineMath>
+            Se cumple la relacion uno a uno en <InlineMath math={String.raw`\forall x \in ${inputLabel}`}/> para f(x). <br/> Dicho de otra forma  <InlineMath>{String.raw`\forall x, y \in ${inputLabel}, f(x) = f(y) \Longrightarrow x = y`}</InlineMath>
         </p>);
 
         const response = { value: true, info: null }
@@ -203,6 +216,48 @@ class RelationUtil {
 
         return response;
     }
+    checkReflexive(){
+        const set = this.relation.setA.arrSet;
+        const map = this.mapA;
+        const flag = true;
+        set.forEach((e) => {
+            if(this.matrix[map[e]][map[e]] == 0) flag = false;
+        });
+
+
+
+        //build response
+
+        
+    }
+    checkSymmetric(){
+        const size = this.setSize;
+        const flag = true;
+        for(let x = 0; x < size && flag; x++){
+            for(let y = 0 ; y < size; y++){
+                if(this.matrix[x][y]){
+                    if(this.matrix[y][x]){
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //build response
+
+        
+    }
+    checkTransitive(){
+        const set = this.relation.setA.arrSet;
+        
+        for(let element of set){
+            
+        }
+
+    }
+
+
 
 
 
@@ -251,9 +306,7 @@ function RelationsCalculator({ sets }) {
     return (
         <>
             <InlineMath math={String.raw`\begin{pmatrix}
-1 & 2 & 3\\
-a & b & c
-\end{pmatrix}`}/>
+1 & 2 & 3\\ a & b & c \end{pmatrix}`}/>
             <AddRelation
                 processedStatus={processedRel}
                 processRelationHandler={processRelation}
@@ -264,6 +317,7 @@ a & b & c
                 relation={relation}
             />
             {processedRel && displayFunction}
+            {processedRel && <InlineMath math={relUtil.katexMatrix}></InlineMath>}
 
 
         </>
