@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import {useState} from 'react'
-import classes from './AddSets.module.css'
+
 
 
 function AddSets({updateSetsHandler}) {
@@ -38,17 +38,12 @@ function AddSets({updateSetsHandler}) {
   return <>
     <Box sx={{textAlign: 'center'}}>
     <Grid container  justifyContent="center">
-        <Grid item xs = {8}>
-            <div>
-                <h1 className={classes.header}>¡Bienvenido a la calculadora de conjuntos!</h1>
-                <p>Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones</p>
-            </div>
-        </Grid>
+        
         <Grid item xs={12} sm={5} sx={{alignItems : 'center', m:2} }>
                 <TextField label='Conjunto A' variant='outlined' onChange={handleUpdateA}></TextField>
         </Grid>
         <Grid item xs={12} sm={5} sx={{alignItems : 'center', m:2}} >
-             <TextField label='Conjunto B' variant='outlined' onChange={handleUpdateB}></TextField>
+             <TextField label='Conjunto B' variant='outlined' onChange={handleUpdateB} ></TextField>
         </Grid>
         <Grid item xs = {3} >
             <Button variant="contained" onClick={handleSubmit}>Calcular</Button>

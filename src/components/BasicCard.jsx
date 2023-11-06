@@ -20,15 +20,18 @@ const bull = (
 export default function BasicCard({title,subtitle, content}) {
   return (
     <Card sx={{ minWidth: 275 }}>
-      <CardContent>
+      <CardContent >
         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
           {title}
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
           <InlineMath>{subtitle}</InlineMath>
         </Typography>
-        <Typography variant="h5" component="div">
-          <InlineMath>{content}</InlineMath>
+        <Typography variant="h6" component="div" sx={{whiteSpace:"normal"}}>
+        <Box component="div" sx={{overflow: 'auto'}} >
+          <p><InlineMath>{content}</InlineMath></p>
+          </Box>
+          
         </Typography>
         
         
