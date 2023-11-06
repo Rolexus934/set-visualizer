@@ -2,7 +2,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import InfoCard from "./InfoCard";
 import { InlineMath } from "react-katex";
-
+import Header from "./Header";
 
 
 export default function FunctionDisplay({ relData }) {
@@ -42,6 +42,7 @@ export default function FunctionDisplay({ relData }) {
 
     return <>
         <Grid>
+            <Header size="h4" title="Funciones y propiedades"  content="Analizemos las propiedades de R como función. "></Header>
             <InfoCard
                 title="¿Es R una funcion?"
                 value={funcData.value ? 'Es una funcion' : 'No es una función'}

@@ -2,57 +2,76 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import InfoCard from "./InfoCard";
 import { InlineMath } from "react-katex";
+import Header from "./Header";
 
+export default function RelationDisplay({ relData }) {
+  const reflexive = relData.isReflexive;
+  const symmetric = relData.isSymmetric;
+  const asymmetric = relData.isAntiSymmetric;
+  const transitive = relData.isTransitive;
+  const katexAdjMatrix = relData.katexAdjMatrix;
 
-
-export default function FunctionDisplay({ relData }) {
-    const funcData = relData.isFunction;
-    const injectData = relData.isInjective;
-    const surjectData = relData.isSurjective;
-
-
-    let biyectData = 'es inyectiva y sobreyectiva, por lo tanto es biyectiva.';
-    if(!injectData.value || !surjectData.value){
-        if(!injectData.value && !surjectData.value){
-            biyectData = 'no es ni inyectiva ni sobreyectiva, por lo tanto no puede ser biyectiva.'
-        }
-        else if(!injectData.value) biyectData = 'no es inyectiva, por lo tanto no puede ser biyectiva.'
-        else biyectData = 'no es sobreyectiva, por lo tanto no puede ser biyectiva.'
-    }
-    
-
-    const inyectivaCard = <InfoCard
-        title="¿Es R inyectiva?"
-        value={injectData.value ? 'Es inyectiva' : 'No es inyectiva'}
-        valuecolor={injectData.value ? 'green' : 'red'}
-        content={injectData.info}
+  const reflexivaCard = (
+    <InfoCard
+      title="¿Es R reflexiva?"
+      value={reflexive.value ? "Es reflexiva" : "No es reflexiva"}
+      valuecolor={reflexive.value ? "green" : "red"}
+      content={reflexive.info}
     />
-    const sobreyectivaCard = <InfoCard
-        title="¿Es R sobreyectiva?"
-        value={surjectData.value ? 'Es sobreyectiva' : 'No es sobreyectiva'}
-        valuecolor={surjectData.value ? 'green' : 'red'}
-        content={surjectData.info}
+  );
+  const simetricaCard = (
+    <InfoCard
+      title="¿Es R simetrica?"
+      value={symmetric.value ? "Es simetrica" : "No es simetrica"}
+      valuecolor={symmetric.value ? "green" : "red"}
+      content={symmetric.info}
     />
-    const biyectivaCard = <InfoCard
-        title="¿Es R biyectiva?"
-        value={injectData.value && surjectData.value ? 'Es biyectiva' : 'No es biyectiva'}
-        valuecolor={funcData.value ? 'green' : 'red'}
-        content={<p><InlineMath math={String.raw`\mathrel{\mathcal{R}}`}/> {biyectData}</p>}
+  );
+  const asimetricaCard = (
+    <InfoCard
+      title="¿Es R asimetrica?"
+      value={asymmetric.value ? "Es asimetrica" : "No es asimetrica"}
+      valuecolor={asymmetric.value ? "green" : "red"}
+      content={asymmetric.info}
     />
+  );
+  const transitivaCard = (
+    <InfoCard
+      title="¿Es R transitiva?"
+      value={transitive.value ? "Es transitiva" : "No es transitiva"}
+      valuecolor={transitive.value ? "green" : "red"}
+      content={transitive.info}
+    />
+  );
 
-    return <>
-        <Grid>
-            <InfoCard
-                title="¿Es R una funcion?"
-                value={funcData.value ? 'Es una funcion' : 'No es una función'}
-                valuecolor={funcData.value ? 'green' : 'red'}
-                content={funcData.info}
-            />
-            {funcData.value && inyectivaCard}
-            {funcData.value && sobreyectivaCard}
-            {funcData.value && biyectivaCard}
+  return (
+    <>
+      <Grid container justifyContent="center">
+        <Header
+          size="h4"
+          title="Propiedades de Relacion"
+          content="Analizemos las propiedades de R como Relación "
+        ></Header>
+        <Grid item md="11">
+          <InfoCard
+            title="Matriz de adyacencia para R"
+            valuecolor={transitive.value ? "green" : "red"}
+            content={<InlineMath math={relData.katexMatrix}/>}
+          />
         </Grid>
+        <Grid item md="6">
+          {reflexivaCard}
+        </Grid>
+        <Grid item md="6">
+          {simetricaCard}
+        </Grid>
+        <Grid item md="6">
+          {asimetricaCard}
+        </Grid>
+        <Grid item md="6">
+          {transitivaCard}
+        </Grid>
+      </Grid>
     </>
+  );
 }
-
-

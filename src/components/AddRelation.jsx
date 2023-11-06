@@ -25,14 +25,12 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
     setValue(e.target.value);
   };
   const handleKeyDown = (e) => {
-    console.log(e);
     if(e.keyCode == 13 && e.shiftKey == false){
       handleSubmit(e);
     }
   }
 
   const handleRadioUpdate = (e) => {
-    console.log(e.target.value);
     setRadioValue(e.target.value);
   }
   const handleProcess = (e) => {
