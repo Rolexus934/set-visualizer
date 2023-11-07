@@ -131,7 +131,7 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
             <BasicCard title="Relacion" subtitle={String.raw`a\mathrel{\mathcal{R}} b`} content={String.raw`\mathrel{\mathcal{R}} = ${relation.katexString}`}></BasicCard>
           </Grid>
           <Grid item xs={2}>
-            <Button variant="contained" onClick={handleProcess} disabled={processedStatus}>
+            <Button variant="contained" onClick={handleProcess} >
               Procesar
             </Button>
           </Grid>
