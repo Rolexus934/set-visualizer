@@ -38,7 +38,30 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
     processRelationHandler(radioValue);
   };
 
+
+  const handleMultipleSubmit = (e) => {
+   const values =  value.split(' ');
+    console.log(values);
+
+    const newElements = [];
+   for(const value of values){
+    let [valueA, valueB] = value.split(",");
+    //formating
+    valueA = valueA.slice(1);
+    valueB = valueB.slice(0, valueB.length - 1);
+    const validation = relationValidator(valueA, valueB);
+    if (validation.state) {
+      newElements.push([valueA,valueB]);
+    }
+    else {
+      alert(validation.details);
+    }
+   }
+   updateRelationHandler(newElements);
+  }
   const handleSubmit = (e) => {
+    if(value == '') return;
+    console.log(e);
     setInputStatus(true);
     e.preventDefault();
     
@@ -47,10 +70,12 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
     valueA = valueA.slice(1);
     valueB = valueB.slice(0, valueB.length - 1);
 
+
+
     //validacion
     const validation = relationValidator(valueA, valueB);
     if (validation.state) {
-      updateRelationHandler(valueA, valueB);
+      updateRelationHandler([[valueA, valueB]]);
     }
     else {
       alert(validation.details);
@@ -126,16 +151,21 @@ function AddRelation({ processedStatus, updateRelationHandler,  deleteRelationHa
               Añadir
             </Button>
           </Grid>
+          <Grid item xs={3}>
+            <Button variant="contained" color= "secondary"onClick={handleMultipleSubmit} disabled={processedStatus}>
+              Añadir varios
+            </Button>
+          </Grid>
 
           <Grid item xs={11} sx={{ margin: '2%' }}>
             <BasicCard title="Relacion" subtitle={String.raw`a\mathrel{\mathcal{R}} b`} content={String.raw`\mathrel{\mathcal{R}} = ${relation.katexString}`}></BasicCard>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <Button variant="contained" onClick={handleProcess} >
               Procesar
             </Button>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <Button variant="contained" color="error" onClick={handleDelete}>
               Eliminar
             </Button>

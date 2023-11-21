@@ -8,9 +8,6 @@ import Button from "@mui/material/Button";
 import HasseDisplay from "./HasseDisplay";
 
 import {useState} from 'react'
-import { useEffect } from "react";
-
-import axios from "axios";
 
 export default function RelationDisplay({ relData }) {
   const reflexive = relData.isReflexive;
@@ -20,19 +17,13 @@ export default function RelationDisplay({ relData }) {
   const katexAdjMatrix = relData.katexAdjMatrix;
   
   const [renderHasse,setRenderHasse ] = useState(false);
+  const [renderPartition, setRenderPartition] = useState(false);
   
   const onGenerateHasse = async () => {
-    const response = await fetch("https://cors-anywhere.herokuapp.com/http://api.wolframalpha.com/v2/query?" + new URLSearchParams({
-      appid: "A6X44T-TATQJWX3E2",
-      input: relData.hasseDiagramUtil.wolframQuery,
-      output: "json"
-    }));
-    const data = await response.json();
-    console.log(data);
     setRenderHasse(true);
   };
   const onGenerateEquivalence = () => {
-    console.log("rendering equivalence");
+      setRenderPartition(true);
   };
   const reflexivaCard = (
     <InfoCard
@@ -153,6 +144,7 @@ export default function RelationDisplay({ relData }) {
         </Grid>
       </Grid>
       {renderHasse && <HasseDisplay hasseData ={relData.hasseDiagramUtil}/>}
+      {renderPartition && <PartitionDisplay partitionData = {relData.equivalenceClassUtil}/>}
     </>
   );
 }

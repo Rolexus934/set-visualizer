@@ -82,6 +82,7 @@ class RelationUtil {
         (this.isReflexive.value && this.isSymmetric.value ) && this.isTransitive.value;
       this.hasseDiagramUtil = this.createHasseDiagram();
       this.hasseDiagramUtil['topologicalSort'] = this.createTopologicalSort();
+      this.equivalenceClassUtil = this.createPartitionUtil();
     }
   }
   createAdylist() {
@@ -214,9 +215,6 @@ class RelationUtil {
       for (let [key, edges] of Object.entries(hasseAdyl)) {
         if (edges.size == 0) maximals.add(key);
       }
-      minimals.forEach((node) => {
-        if (maximals.has(node)) hasseAdyl[node].add(node);
-      });
       const wolframQueryContent = [];
 
       for (let [key, edges] of Object.entries(hasseAdyl)) {
@@ -283,6 +281,45 @@ class RelationUtil {
     catch(e){
         console.log(e);
     }
+
+  }
+  createPartitionUtil(){
+    if(!this.isEquivalence) return null;
+    
+    const adyl = this.adyList;
+    const n = Object.keys(adyl).length;
+    const map = this.mapA;
+
+
+    const vis = new Array(n).fill(false);
+    const equivalenceClassList = {};
+    for(const [node, edges] of Object.entries(adyl)){
+      if(vis[map[node]]) continue;
+
+      equivalenceClassList[node] = Array.from(edges);
+
+      for(const edge of edges ){
+        vis[map[edge]] = true;
+      } 
+    }
+    console.log(equivalenceClassList);
+
+
+    const classes = Object.keys(equivalenceClassList);
+    const classList  = classes.map((x) => `[${x}]`);
+
+
+
+
+    
+    
+    return {equivalenceAdyl: equivalenceClassList, classListStr: classList};
+
+    //finding equivalence class
+
+    //creating visited object
+
+
 
   }
   isFunction() {
@@ -646,8 +683,10 @@ function RelationsCalculator({ sets }) {
   console.log(setB);
   console.log(relation);
 
-  const updateRelation = (valueA, valueB) => {
-    setRelation(new Relation([...relation.arr, [valueA, valueB]], setA, setB));
+  const updateRelation = (elements) => {
+
+
+    setRelation(new Relation([...relation.arr, ...elements], setA, setB));
   };
   const deleteRelation = () => {
     setRelation(new Relation([], setA, setB));
@@ -693,7 +732,7 @@ function RelationsCalculator({ sets }) {
         relation={relation}
       />
       {processedRel && displayFunction}
-      {processedRel && relUtil.homogeneous
+      {processedRel  && relUtil.homogeneous
         ? displayRelProps
         : headerNotHomogeneous}
     </>

@@ -70,7 +70,7 @@ function App() {
       <Nav />
       <Header size="h3" title="Calculadora de conjuntos" content="Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones"></Header>
       <SetCalculator updateSets={updateSets} sets={globalSets} />
-      <Header size="h4" title="Relaciones" content="Si quieres calcular relaciones entre el conjunto A y B. Ingresa uno por uno cada elemento de la relación en la siguiente sección. " />
+      <Header size="h4" title="Relaciones" content={<>Si quieres calcular relaciones entre el conjunto A y B, ingresa uno por uno cada elemento de la relación usando la estructura (a,b) <br/> Si quieres añadir mas de un elemento a la vez, separa cada par con comas. Ejemplo: (a,b),(b,c), (c,d). </>} />
       <RelationsCalculator sets={globalSets} />
     </>
   )

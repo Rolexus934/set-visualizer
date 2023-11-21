@@ -14,10 +14,9 @@ import Cytoscape from "cytoscape";
 import CytoscapeComponent from "react-cytoscapejs";
 import dagre from "cytoscape-dagre";
 
-function HasseDisplay({ hasseData }) {
+function PartitionDisplay({ equivalenceData }) {
   try {
-
-    const minStr = hasseData.maximals.join();
+    const equivalanceClass = hasseData.maximals.join();
     const maxStr = hasseData.minimals.join();
     const topStr = hasseData.topologicalSort.join();
     Cytoscape.use(dagre);
@@ -27,7 +26,7 @@ function HasseDisplay({ hasseData }) {
     //parsing to cytoscapejs
     const adyl = hasseData.hasseAdyl;
 
-    //cytoscape node
+    //cytoscape nodeP
     const elements = [];
     for(const [node, edges] of Object.entries(adyl)){
       const nodeObj = {};
@@ -93,4 +92,4 @@ function HasseDisplay({ hasseData }) {
   }
 }
 
-export default HasseDisplay;
+export default PartitionDisplay;
