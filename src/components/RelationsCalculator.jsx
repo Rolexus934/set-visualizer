@@ -9,6 +9,13 @@ import RelationDisplay from "./RelationDisplay";
 
 import { InlineMath } from "react-katex";
 import { Fort } from "@mui/icons-material";
+import Header from "./Header";
+
+import { useEffect } from "react";
+
+import axios from "axios";
+
+//dfs
 
 class Relation {
   constructor(arr, setA, setB, relType) {
@@ -65,6 +72,17 @@ class RelationUtil {
       this.isSymmetric = this.checkSymmetric();
       this.isTransitive = this.checkTransitive();
       this.isAntiSymmetric = this.checkAntisymmetric();
+      this.isPartialOrder =
+        this.isReflexive.value &&
+        this.isAntiSymmetric.value &&
+        this.isTransitive.value;
+      this.isEquivalence =
+        this.isReflexive.value &&
+        this.isSymmetric.value &&
+        this.isTransitive.value;
+      this.hasseDiagramUtil = this.createHasseDiagram();
+      this.hasseDiagramUtil["topologicalSort"] = this.createTopologicalSort();
+      this.equivalenceClassUtil = this.createPartitionUtil();
     }
   }
   createAdylist() {
@@ -97,7 +115,6 @@ class RelationUtil {
     return invAdyList;
   }
   mapElementToIndex(values) {
-    console.log(values);
     //maps every value on the set from 0 to n;
     const map = {};
     for (let x = 0; x < values.length; x++) {
@@ -110,7 +127,6 @@ class RelationUtil {
     //initialize
 
     const n = this.setSize;
-    console.log(n);
     let matrix = [];
     for (let x = 0; x < n; x++) {
       const tempArr = [];
@@ -122,9 +138,6 @@ class RelationUtil {
     //creates a NxN matrix with values initialized on 0
     const adyl = this.adyList;
     const map = this.mapA;
-    console.log("lookatmymap");
-    console.log(map);
-    console.log(matrix);
     for (const [key, value] of Object.entries(adyl)) {
       value.forEach((e) => {
         matrix[map[key]][map[e]] = 1;
@@ -141,6 +154,153 @@ class RelationUtil {
     });
     const strMatrix = temp.join(String.raw`\\`);
     return String.raw`\begin{pmatrix} ${strMatrix} \end{pmatrix}`;
+  }
+  createHasseDiagram() {
+    if (!this.isPartialOrder)
+      return {
+        hasseAdyl: null,
+        maximals: null,
+        minimals: null,
+        wolframQuery: null,
+      };
+    let adyl = this.adyList;
+    let hasseAdyl = {};
+    let set = this.relation.setA.arrSet;
+
+    try {
+      //deep copy
+      for (let [key, element] of Object.entries(this.adyList)) {
+        hasseAdyl[key] = new Set(element);
+      }
+      //deep copy
+
+      //deleting reflexive
+      for (let [value, edges] of Object.entries(hasseAdyl)) {
+        edges.delete(value);
+      }
+      //buildHasse
+      for (let [value, edges] of Object.entries(hasseAdyl)) {
+        for (let child of edges) {
+          const childEdges = adyl[child];
+          for (let childEdge of childEdges) {
+            if (child != childEdge) edges.delete(childEdge);
+          }
+        }
+      }
+
+      //dependency list
+      const dependencies = {};
+      set.forEach((e) => {
+        dependencies[e] = 0;
+      });
+
+      for (let [value, edges] of Object.entries(hasseAdyl)) {
+        edges.forEach((e) => {
+          dependencies[e]++;
+        });
+      }
+      //finding minimals
+      const minimals = new Set();
+      for (let [key, value] of Object.entries(dependencies)) {
+        if (value == 0) minimals.add(key);
+      }
+      //finding maximals;
+      const maximals = new Set();
+      for (let [key, edges] of Object.entries(hasseAdyl)) {
+        if (edges.size == 0) maximals.add(key);
+      }
+      const wolframQueryContent = [];
+
+      for (let [key, edges] of Object.entries(hasseAdyl)) {
+        edges.forEach((node) => {
+          wolframQueryContent.push(`${key} -> ${node}`);
+        });
+      }
+
+      return {
+        hasseAdyl: hasseAdyl,
+        maximals: Array.from(maximals),
+        minimals: Array.from(minimals),
+        wolframQuery: `directed graph ${wolframQueryContent}`,
+      };
+    } catch (e) {
+      console.log(e);
+    }
+
+    return hasseAdyl;
+  }
+  createTopologicalSort() {
+    try {
+      if (!this.isPartialOrder) return null;
+      const adjList = this.hasseDiagramUtil.hasseAdyl;
+      const n = Object.keys(this.hasseDiagramUtil.hasseAdyl).length;
+      const vis = new Array(n).fill(false);
+      const topSort = new Array(n).fill(0);
+      const map = this.mapA;
+      let i = n - 1;
+
+      const dfs = function (i, node, vis, topSort, adjList) {
+        vis[map[node]] = true;
+
+        const edges = adjList[node];
+
+        for (const edge of edges) {
+          if (vis[map[edge]] == false) {
+            i = dfs(i, edge, vis, topSort, adjList);
+          }
+        }
+        topSort[i] = node;
+        return i - 1;
+      };
+
+      for (const [node, edges] of Object.entries(adjList)) {
+        if (vis[map[node]] == false) {
+          i = dfs(i, node, vis, topSort, adjList);
+        }
+      }
+
+      return topSort;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  createPartitionUtil() {
+    if (!this.isEquivalence) return null;
+
+    const adyl = this.adyList;
+    const n = Object.keys(adyl).length;
+    const map = this.mapA;
+
+    const vis = new Array(n).fill(false);
+    const equivalenceClassList = {};
+    for (const [node, edges] of Object.entries(adyl)) {
+      if (vis[map[node]]) continue;
+
+      equivalenceClassList[node] = Array.from(edges);
+
+      for (const edge of edges) {
+        vis[map[edge]] = true;
+      }
+    }
+
+    const graphAdyl = {};
+    for (const [node, edges] of Object.entries(adyl)) {
+      edges.delete(node);
+      graphAdyl[node] = edges;
+    }
+
+    const classes = Object.keys(equivalenceClassList);
+    const classList = classes.map((x) => `[${x}]`);
+
+    return {
+      equivalenceList: equivalenceClassList,
+      classListStr: classList,
+      equivalenceAdyl: graphAdyl,
+    };
+
+    //finding equivalence class
+
+    //creating visited object
   }
   isFunction() {
     const adyl = this.adyList;
@@ -182,7 +342,6 @@ class RelationUtil {
 
     return response;
   }
-
   isInjective() {
     const invAdyl = this.createInvAdyList();
     const inputLabel = this.relation.setA.label;
@@ -229,7 +388,6 @@ class RelationUtil {
 
     return response;
   }
-
   isSurjective() {
     const invAdyl = this.createInvAdyList();
     const inputLabel = this.relation.setA.label;
@@ -332,9 +490,6 @@ class RelationUtil {
         }
       }
     }
-    console.log("badpairrr");
-    console.log(badPair);
-    console.log(map);
     const response = { value: null, info: null };
     response.value = flag;
     if (!response.value) {
@@ -342,7 +497,7 @@ class RelationUtil {
         <p>
           Para que R sea simétrica, se tiene que cumplir que{" "}
           <InlineMath
-            math={String.raw`\forall x,y \in ${this.setLabel}, \exists (x,y) \in R \longrightarrow (y,x) \in R`}
+            math={String.raw`\forall x,y \in ${this.setLabel}, \exists (x,y) \in R \Longrightarrow (y,x) \in R`}
           />
           <br />
           Sin embargo, el par{" "}
@@ -428,8 +583,6 @@ class RelationUtil {
     for (let a of set) {
       if (!flag) break;
       //obtaining the related elements of a
-      console.log(a);
-      console.log(adyList);
       const elementRelated = adyList[a];
 
       //for every b related to a (a,b)
@@ -443,7 +596,6 @@ class RelationUtil {
           if (!elementRelated.has(c)) {
             //if the previous rule does not comply for every element, then R is not transitive
             badTriplet = { a: a, b: b, c: c };
-            console.log(a, b, c);
             flag = false;
             break;
           }
@@ -453,7 +605,6 @@ class RelationUtil {
 
     const response = { value: null, info: null };
     response.value = flag;
-    console.log(this.setLabel);
     if (!response.value) {
       response.info = (
         <p>
@@ -466,12 +617,13 @@ class RelationUtil {
           <InlineMath
             math={String.raw`(${badTriplet.a}, ${badTriplet.b}) \in R `}
             y
-          />{" y "}
+          />
+          {" y "}
           <InlineMath
             math={String.raw`(${badTriplet.b}, ${badTriplet.c}) \in R `}
             y
-          />
-          {" "} pero {" "}
+          />{" "}
+          pero{" "}
           <InlineMath
             math={String.raw`(${badTriplet.a}, ${badTriplet.c}) \notin R`}
           />
@@ -491,7 +643,6 @@ class RelationUtil {
         </p>
       );
     }
-
     return response;
   }
 }
@@ -503,12 +654,9 @@ function RelationsCalculator({ sets }) {
     new Relation([], { ...setA }, { ...setB })
   );
   const [processedRel, setProcessedRel] = useState(false);
-  console.log(setA);
-  console.log(setB);
-  console.log(relation);
 
-  const updateRelation = (valueA, valueB) => {
-    setRelation(new Relation([...relation.arr, [valueA, valueB]], setA, setB));
+  const updateRelation = (elements) => {
+    setRelation(new Relation([...relation.arr, ...elements], setA, setB));
   };
   const deleteRelation = () => {
     setRelation(new Relation([], setA, setB));
@@ -527,15 +675,27 @@ function RelationsCalculator({ sets }) {
     setProcessedRel(true);
   };
 
-  let relUtil = null;
+  let relUtil = {};
+  relUtil.homogeneous = false;
 
   if (processedRel) relUtil = new RelationUtil(relation);
 
-  console.log(relUtil);
+  console.log("relUtil", relUtil);
 
   const displayFunction = <FunctionDisplay relData={relUtil} />;
   const displayRelProps = <RelationDisplay relData={relUtil} />;
+  let headerNotHomogeneous = null;
+  if(processedRel) headerNotHomogeneous = (
+    <Header
+      title="Tu relacion no es homogenea"
+      content={"Si quieres observar más propiedades de tu relacion, tiene que ser de tipo homogenea (A->A o B->B) "}
+      size="h4"
+    />
+  );
 
+  
+
+    
   return (
     <>
       <AddRelation
@@ -548,7 +708,9 @@ function RelationsCalculator({ sets }) {
         relation={relation}
       />
       {processedRel && displayFunction}
-      {processedRel && relUtil.homogeneous && displayRelProps}
+      {(processedRel && relUtil.homogeneous)
+        ? displayRelProps
+        : (headerNotHomogeneous)}
     </>
   );
 }

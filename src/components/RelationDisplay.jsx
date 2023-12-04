@@ -3,6 +3,12 @@ import Box from "@mui/material/Box";
 import InfoCard from "./InfoCard";
 import { InlineMath } from "react-katex";
 import Header from "./Header";
+import { Info } from "@mui/icons-material";
+import Button from "@mui/material/Button";
+import HasseDisplay from "./HasseDisplay";
+import PartitionDisplay from "./PartitionDisplay";
+
+import {useState} from 'react'
 
 export default function RelationDisplay({ relData }) {
   const reflexive = relData.isReflexive;
@@ -10,7 +16,16 @@ export default function RelationDisplay({ relData }) {
   const asymmetric = relData.isAntiSymmetric;
   const transitive = relData.isTransitive;
   const katexAdjMatrix = relData.katexAdjMatrix;
-
+  
+  const [renderHasse,setRenderHasse ] = useState(false);
+  const [renderPartition, setRenderPartition] = useState(false);
+  
+  const onGenerateHasse = async () => {
+    setRenderHasse(true);
+  };
+  const onGenerateEquivalence = () => {
+      setRenderPartition(true);
+  };
   const reflexivaCard = (
     <InfoCard
       title="¿Es R reflexiva?"
@@ -43,12 +58,66 @@ export default function RelationDisplay({ relData }) {
       content={transitive.info}
     />
   );
+  let value;
+  let color;
+  let content;
+  const partialOrder = relData.isPartialOrder,
+    equivalence = relData.isEquivalence;
+  if (partialOrder && equivalence) {
+    value = "Es una relacion de orden parcial y de equivalencia";
+    color = "Blue";
+    content =
+      "R es transitiva, reflexiva, simétrica y antisimetrica. Por lo tanto es al mismo tiempo una relacion de orden parcial y una de equivalencia";
+  } else if (partialOrder) {
+    value = "Es una relacion de orden parcial";
+    color = "orange";
+    content =
+      "R es transitiva, reflexiva y antisimetrica, por lo tanto es una relacion de orden parcial";
+  } else if (equivalence) {
+    value = "Es una relacion de equivalencia";
+    color = "purple";
+    content =
+      "R es transitiva, reflexiva y simetrica, por lo tanto es una relacion de equivalencia";
+  } else {
+    value = "No es ni de equivalencia ni de orden parcial";
+    color = "red";
+    content =
+      "R no cumple con los requisitos para ser una relacion de equivalencia o de orden parcial";
+  }
 
+  const typeOfRelationCard = (
+    <>
+      <InfoCard
+        title="¿Que tipo de relación es R?"
+        value={value}
+        valuecolor={color}
+        content={content}
+      />
+
+      <Grid container justifyContent="center">
+        {partialOrder ? (
+          <Button variant="contained" onClick={onGenerateHasse}>
+            Generar diagrama de Hasse
+          </Button>
+        ) : null}
+        {equivalence ? (
+          <Button variant="contained" onClick={onGenerateEquivalence}>
+            Mostrar clases de equivalencia
+          </Button>
+        ) : null}
+      </Grid>
+    </>
+  );
+  const hasseDisplay = (
+    <>
+
+    </>
+  );
   return (
     <>
-      <Grid container justifyContent="center">
+      <Grid container justifyContent="center" sx={{ margin: "1%" }}>
         <Header
-          size="h4"
+          size="h3"
           title="Propiedades de Relacion"
           content="Analizemos las propiedades de R como Relación "
         ></Header>
@@ -56,7 +125,7 @@ export default function RelationDisplay({ relData }) {
           <InfoCard
             title="Matriz de adyacencia para R"
             valuecolor={transitive.value ? "green" : "red"}
-            content={<InlineMath math={relData.katexMatrix}/>}
+            content={<InlineMath math={relData.katexMatrix} />}
           />
         </Grid>
         <Grid item md="6">
@@ -71,7 +140,12 @@ export default function RelationDisplay({ relData }) {
         <Grid item md="6">
           {transitivaCard}
         </Grid>
+        <Grid item md="8">
+          {typeOfRelationCard}
+        </Grid>
       </Grid>
+      {renderHasse && <HasseDisplay hasseData ={relData.hasseDiagramUtil}/>}
+      {renderPartition && <PartitionDisplay partitionData = {relData.equivalenceClassUtil}/>}
     </>
   );
 }
