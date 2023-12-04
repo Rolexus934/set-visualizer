@@ -9,6 +9,8 @@ import Nav from "./components/Nav";
 import Header from "./components/Header"
 import SetCalculator from "./components/SetCalculator";
 import RelationsCalculator from "./components/RelationsCalculator";
+import GraphVisualizer from "./components/GraphVisualizer";
+
 class Conjunto {
   constructor(set, label) {
     this.arrSet = set;
@@ -56,22 +58,38 @@ class Conjunto {
 
 function App() {
   const [rawSets, setRawSets] = useState({ setA: [], setB: [] });
+
+  const [isCalc, setIsCalc] = useState(true);
   const updateSets = (a, b) => {
     setRawSets({ setA: a, setB: b });
+  }
+
+  const updateState = (value) => {
+    setIsCalc(value);
   }
 
   const globalSets = { setA: new Conjunto(rawSets.setA, "A"), setB: new Conjunto(rawSets.setB, "B") }
 
   console.log("globalSets")
 
-
-  return (
-    <>
-      <Nav />
-      <Header size="h3" title="Calculadora de conjuntos" content="Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones"></Header>
+  const calculator = <>
+    <Header size="h3" title="Calculadora de conjuntos" content="Ingrese los valores de los conjuntos separados por una coma. Sin espacios ni repeticiones"></Header>
       <SetCalculator updateSets={updateSets} sets={globalSets} />
       <Header size="h4" title="Relaciones" content={<>Si quieres calcular relaciones entre el conjunto A y B, ingresa uno por uno cada elemento de la relación usando la estructura (a,b) <br/> Si quieres añadir mas de un elemento a la vez, separa cada par con espacios. Ejemplo: (a,b) (b,c) (c,d). </>} />
       <RelationsCalculator sets={globalSets} />
+  </>
+
+  const graphvis = <>
+    <Header size="h3" title="Visualizador de grafos" content="Puede interactuar de cualquiera de las 5 formas indicadas"></Header>
+    <GraphVisualizer></GraphVisualizer>
+
+  </>
+
+
+  return (
+    <>
+      <Nav updatePage = {updateState}/>
+      {isCalc ? calculator : graphvis}
     </>
   )
 }
