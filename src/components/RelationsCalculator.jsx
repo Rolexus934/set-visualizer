@@ -15,11 +15,7 @@ import { useEffect } from "react";
 
 import axios from "axios";
 
-
 //dfs
-
-
-
 
 class Relation {
   constructor(arr, setA, setB, relType) {
@@ -77,11 +73,15 @@ class RelationUtil {
       this.isTransitive = this.checkTransitive();
       this.isAntiSymmetric = this.checkAntisymmetric();
       this.isPartialOrder =
-        (this.isReflexive.value && this.isAntiSymmetric.value) && this.isTransitive.value;
+        this.isReflexive.value &&
+        this.isAntiSymmetric.value &&
+        this.isTransitive.value;
       this.isEquivalence =
-        (this.isReflexive.value && this.isSymmetric.value ) && this.isTransitive.value;
+        this.isReflexive.value &&
+        this.isSymmetric.value &&
+        this.isTransitive.value;
       this.hasseDiagramUtil = this.createHasseDiagram();
-      this.hasseDiagramUtil['topologicalSort'] = this.createTopologicalSort();
+      this.hasseDiagramUtil["topologicalSort"] = this.createTopologicalSort();
       this.equivalenceClassUtil = this.createPartitionUtil();
     }
   }
@@ -115,7 +115,6 @@ class RelationUtil {
     return invAdyList;
   }
   mapElementToIndex(values) {
-    console.log(values);
     //maps every value on the set from 0 to n;
     const map = {};
     for (let x = 0; x < values.length; x++) {
@@ -128,7 +127,6 @@ class RelationUtil {
     //initialize
 
     const n = this.setSize;
-    console.log(n);
     let matrix = [];
     for (let x = 0; x < n; x++) {
       const tempArr = [];
@@ -140,9 +138,6 @@ class RelationUtil {
     //creates a NxN matrix with values initialized on 0
     const adyl = this.adyList;
     const map = this.mapA;
-    console.log("lookatmymap");
-    console.log(map);
-    console.log(matrix);
     for (const [key, value] of Object.entries(adyl)) {
       value.forEach((e) => {
         matrix[map[key]][map[e]] = 1;
@@ -192,7 +187,6 @@ class RelationUtil {
           }
         }
       }
-      console.log("Hasse", hasseAdyl);
 
       //dependency list
       const dependencies = {};
@@ -222,10 +216,6 @@ class RelationUtil {
           wolframQueryContent.push(`${key} -> ${node}`);
         });
       }
-      console.log("dependencies", dependencies);
-      console.log("minimal", minimals);
-      console.log("maximal", maximals);
-      console.log(wolframQueryContent.join());
 
       return {
         hasseAdyl: hasseAdyl,
@@ -240,87 +230,77 @@ class RelationUtil {
     return hasseAdyl;
   }
   createTopologicalSort() {
-    try{
-        if(!this.isPartialOrder) return null;
-        const adjList = this.hasseDiagramUtil.hasseAdyl;
-        const n = Object.keys(this.hasseDiagramUtil.hasseAdyl).length;
-        const vis = new Array(n).fill(false);
-        const topSort = new Array(n).fill(0);
-        const map = this.mapA;
-        let i = n - 1;
+    try {
+      if (!this.isPartialOrder) return null;
+      const adjList = this.hasseDiagramUtil.hasseAdyl;
+      const n = Object.keys(this.hasseDiagramUtil.hasseAdyl).length;
+      const vis = new Array(n).fill(false);
+      const topSort = new Array(n).fill(0);
+      const map = this.mapA;
+      let i = n - 1;
 
-        const dfs = function(i,node, vis, topSort, adjList){
-            vis[map[node]] = true;
-            
-            const edges = adjList[node];
-            //console.log(edges);
-            for(const edge of edges){
-                if(vis[map[edge]] == false){
-                    //console.log("checking for", node);
-                    i = dfs(i, edge, vis, topSort, adjList);
-                }
-            }
-            topSort[i] = node;
-            return i - 1; 
+      const dfs = function (i, node, vis, topSort, adjList) {
+        vis[map[node]] = true;
+
+        const edges = adjList[node];
+
+        for (const edge of edges) {
+          if (vis[map[edge]] == false) {
+            i = dfs(i, edge, vis, topSort, adjList);
+          }
         }
+        topSort[i] = node;
+        return i - 1;
+      };
 
-        for(const [node, edges] of Object.entries(adjList)){
-            if(vis[map[node]] == false){
-                //console.log("checkinggg", node);
-                i = dfs(i, node, vis, topSort, adjList);
-                //console.log(i);
-
-            }
+      for (const [node, edges] of Object.entries(adjList)) {
+        if (vis[map[node]] == false) {
+          i = dfs(i, node, vis, topSort, adjList);
         }
-        console.log(topSort)
-        return topSort;
-        
+      }
 
-
+      return topSort;
+    } catch (e) {
+      console.log(e);
     }
-    catch(e){
-        console.log(e);
-    }
-
   }
-  createPartitionUtil(){
-    if(!this.isEquivalence) return null;
-    
+  createPartitionUtil() {
+    if (!this.isEquivalence) return null;
+
     const adyl = this.adyList;
     const n = Object.keys(adyl).length;
     const map = this.mapA;
 
-
     const vis = new Array(n).fill(false);
     const equivalenceClassList = {};
-    for(const [node, edges] of Object.entries(adyl)){
-      if(vis[map[node]]) continue;
+    for (const [node, edges] of Object.entries(adyl)) {
+      if (vis[map[node]]) continue;
 
       equivalenceClassList[node] = Array.from(edges);
 
-      for(const edge of edges ){
+      for (const edge of edges) {
         vis[map[edge]] = true;
-      } 
+      }
     }
-    console.log(equivalenceClassList);
 
+    const graphAdyl = {};
+    for (const [node, edges] of Object.entries(adyl)) {
+      edges.delete(node);
+      graphAdyl[node] = edges;
+    }
 
     const classes = Object.keys(equivalenceClassList);
-    const classList  = classes.map((x) => `[${x}]`);
+    const classList = classes.map((x) => `[${x}]`);
 
-
-
-
-    
-    
-    return {equivalenceAdyl: equivalenceClassList, classListStr: classList};
+    return {
+      equivalenceList: equivalenceClassList,
+      classListStr: classList,
+      equivalenceAdyl: graphAdyl,
+    };
 
     //finding equivalence class
 
     //creating visited object
-
-
-
   }
   isFunction() {
     const adyl = this.adyList;
@@ -510,9 +490,6 @@ class RelationUtil {
         }
       }
     }
-    console.log("badpairrr");
-    console.log(badPair);
-    console.log(map);
     const response = { value: null, info: null };
     response.value = flag;
     if (!response.value) {
@@ -628,7 +605,6 @@ class RelationUtil {
 
     const response = { value: null, info: null };
     response.value = flag;
-    console.log(this.setLabel);
     if (!response.value) {
       response.info = (
         <p>
@@ -667,7 +643,6 @@ class RelationUtil {
         </p>
       );
     }
-    console.log("cool", adyList);
     return response;
   }
 }
@@ -679,13 +654,8 @@ function RelationsCalculator({ sets }) {
     new Relation([], { ...setA }, { ...setB })
   );
   const [processedRel, setProcessedRel] = useState(false);
-  console.log(setA);
-  console.log(setB);
-  console.log(relation);
 
   const updateRelation = (elements) => {
-
-
     setRelation(new Relation([...relation.arr, ...elements], setA, setB));
   };
   const deleteRelation = () => {
@@ -705,7 +675,8 @@ function RelationsCalculator({ sets }) {
     setProcessedRel(true);
   };
 
-  let relUtil = null;
+  let relUtil = {};
+  relUtil.homogeneous = false;
 
   if (processedRel) relUtil = new RelationUtil(relation);
 
@@ -713,13 +684,18 @@ function RelationsCalculator({ sets }) {
 
   const displayFunction = <FunctionDisplay relData={relUtil} />;
   const displayRelProps = <RelationDisplay relData={relUtil} />;
-  const headerNotHomogeneous = (
+  let headerNotHomogeneous = null;
+  if(processedRel) headerNotHomogeneous = (
     <Header
       title="Tu relacion no es homogenea"
-      content="Si quieres observar más propiedades de tu relacion, tiene que ser de tipo homogenea (A->A o B->B) "
+      content={"Si quieres observar más propiedades de tu relacion, tiene que ser de tipo homogenea (A->A o B->B) "}
       size="h4"
     />
   );
+
+  
+
+    
   return (
     <>
       <AddRelation
@@ -732,9 +708,9 @@ function RelationsCalculator({ sets }) {
         relation={relation}
       />
       {processedRel && displayFunction}
-      {processedRel  && relUtil.homogeneous
+      {(processedRel && relUtil.homogeneous)
         ? displayRelProps
-        : headerNotHomogeneous}
+        : (headerNotHomogeneous)}
     </>
   );
 }

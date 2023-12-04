@@ -12,75 +12,79 @@ import Header from "./Header";
 
 import Cytoscape from "cytoscape";
 import CytoscapeComponent from "react-cytoscapejs";
-import dagre from "cytoscape-dagre";
+import avsdf from "cytoscape-avsdf";
 
-function PartitionDisplay({ equivalenceData }) {
+function PartitionDisplay({ partitionData }) {
   try {
-    const equivalanceClass = hasseData.maximals.join();
-    const maxStr = hasseData.minimals.join();
-    const topStr = hasseData.topologicalSort.join();
-    Cytoscape.use(dagre);
-
-
+    Cytoscape.use(avsdf);
 
     //parsing to cytoscapejs
-    const adyl = hasseData.hasseAdyl;
-
+    const adyl = partitionData.equivalenceAdyl;
+    const classes = partitionData.classListStr;
+    const eqList = partitionData.equivalenceList;
     //cytoscape nodeP
     const elements = [];
-    for(const [node, edges] of Object.entries(adyl)){
+    for (const [node, edges] of Object.entries(adyl)) {
       const nodeObj = {};
-      nodeObj['id'] = node;
-      nodeObj['label'] = node;
-      elements.push({data: nodeObj});
-      for(const element of edges){
+      nodeObj["id"] = node;
+      nodeObj["label"] = node;
+      elements.push({ data: nodeObj });
+      for (const element of edges) {
         const edgeObj = {};
-        edgeObj['id'] = `${node}${element}`;
-        edgeObj['source'] = node;
-        edgeObj['target'] = element;
+        edgeObj["id"] = `${node}${element}`;
+        edgeObj["source"] = node;
+        edgeObj["target"] = element;
 
-        elements.push({data: edgeObj});
+        elements.push({ data: edgeObj });
       }
     }
 
-    console.log(elements);
-    const maximalData = (
+    const eqClassData = (
       <p>
-        <InlineMath>{String.raw`\{${maxStr}\}`}</InlineMath>
+        <InlineMath
+          math={String.raw` P / Q =\{${classes.join()}\}`}
+        ></InlineMath>
       </p>
     );
-    const minimalData = (
-      <InlineMath math={String.raw`\{${minStr}\}`}></InlineMath>
-    );
-    const topoData = <InlineMath math={String.raw`\{${topStr}\}`}></InlineMath>;
+
+    const eqClassArray = [];
+
+    for (const [key, elements] of Object.entries(eqList)) {
+      const content = (
+        <p>
+          <InlineMath
+            math={String.raw`[${key}] = \{${elements.join()}\}`}
+          ></InlineMath>
+        </p>
+      );
+
+      const infocard = (
+        <Grid item md="5">
+          <InfoCard title={`Clase [${key}]`} content={content} />
+        </Grid>
+      );
+
+      eqClassArray.push(infocard);
+    }
+
     return (
       <>
         <Header
-          title="Propiedades de Relación de Orden parcial"
-          content="Analizemos el diagrama de Hasse, así como el orden topologico, los maximales y minimales de nuestra relación"
+          size="h3"
+          title="Propiedades de Relación de Equivalencia"
+          content="Analizemos las clases de equivalencia así como su diagrama de particiones"
         ></Header>
         <Grid container justifyContent="center">
-          <Grid item md="5">
-            <InfoCard
-              title="Elementos Maximales"
-              content={maximalData}
-            ></InfoCard>
-          </Grid>
-          <Grid item md="5">
-            <InfoCard
-              title="Elementos Minimales"
-              content={minimalData}
-            ></InfoCard>
-          </Grid>
           <Grid item md="10">
-            <InfoCard title="Orden Topolologico" content={topoData}></InfoCard>
+            <InfoCard title="Clases de equivalencia" content={eqClassData} />
           </Grid>
-          <Grid item md="7">
+          {eqClassArray}
+          <Grid item md="10">
             <CytoscapeComponent
               elements={elements}
-              style={{ width: "500px", height: "500px", background: "grey" }}
+              style={{ width: "900px", height: "900px", background: "grey" }}
               layout={{
-                name: "dagre",
+                name: "avsdf",
               }}
             />
           </Grid>

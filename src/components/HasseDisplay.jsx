@@ -59,6 +59,7 @@ function HasseDisplay({ hasseData }) {
         <Header
           title="Propiedades de Relación de Orden parcial"
           content="Analizemos el diagrama de Hasse, así como el orden topologico, los maximales y minimales de nuestra relación"
+          size="h3"
         ></Header>
         <Grid container justifyContent="center">
           <Grid item md="5">
@@ -79,7 +80,7 @@ function HasseDisplay({ hasseData }) {
           <Grid item md="7">
             <CytoscapeComponent
               elements={elements}
-              style={{ width: "500px", height: "500px", background: "grey" }}
+              style={{ width: "900px", height: "900px", background: "grey" }}
               layout={{
                 name: "dagre",
               }}

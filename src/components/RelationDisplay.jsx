@@ -6,6 +6,7 @@ import Header from "./Header";
 import { Info } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import HasseDisplay from "./HasseDisplay";
+import PartitionDisplay from "./PartitionDisplay";
 
 import {useState} from 'react'
 
@@ -116,7 +117,7 @@ export default function RelationDisplay({ relData }) {
     <>
       <Grid container justifyContent="center" sx={{ margin: "1%" }}>
         <Header
-          size="h4"
+          size="h3"
           title="Propiedades de Relacion"
           content="Analizemos las propiedades de R como Relación "
         ></Header>

@@ -42,7 +42,7 @@ export default function FunctionDisplay({ relData }) {
 
     return <>
         <Grid>
-            <Header size="h4" title="Funciones y propiedades"  content="Analizemos las propiedades de R como función. "></Header>
+            <Header size="h3" title="Funciones y propiedades"  content="Analizemos las propiedades de R como función. "></Header>
             <InfoCard
                 title="¿Es R una funcion?"
                 value={funcData.value ? 'Es una funcion' : 'No es una función'}
